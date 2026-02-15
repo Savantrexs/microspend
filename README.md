@@ -84,6 +84,23 @@ npx expo start
 └── assets/                       # App icons and splash images
 ```
 
+## Export CSV & Mock Ad Gate
+
+MicroSpend includes a CSV export feature gated behind a mock rewarded-ad flow (no real AdMob SDK required).
+
+**How it works:**
+
+1. Go to **Settings** tab and tap **Export CSV**.
+2. A modal appears: *"Watch a short ad to export"* with **Cancel** and **Watch Ad** buttons.
+3. Tap **Watch Ad** — a simulated ad plays for ~2.5 seconds (spinner + "Playing ad…").
+4. The modal shows **"Ad completed ✅"** for 1 second.
+5. The modal closes and the OS share sheet opens with the generated `microspend_expenses.csv` file.
+6. You can save to Files, AirDrop, email, etc.
+
+**Offline:** The entire flow is offline — CSV is generated from local SQLite data and written to the device cache directory. No network required.
+
+**Replacing the mock ad with real AdMob:** Swap the `handleWatchAd` function in `src/screens/SettingsScreen.tsx` with a real rewarded-ad SDK call (e.g. `expo-ads-admob` or `react-native-google-mobile-ads`). The three-phase state machine (`idle` → `playing` → `completed`) maps directly to real ad lifecycle callbacks.
+
 ## Data Model
 
 **expenses** table (SQLite):
