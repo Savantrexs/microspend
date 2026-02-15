@@ -50,7 +50,15 @@ export default function HistoryScreen() {
     );
   };
 
-  const renderItem = ({ item }: { item: Expense }) => {
+  const renderItem = ({
+    item,
+    index,
+    section,
+  }: {
+    item: Expense;
+    index: number;
+    section: { data: Expense[] };
+  }) => {
     const catColor =
       item.category === 'Food'
         ? colors.categoryFood
@@ -58,33 +66,45 @@ export default function HistoryScreen() {
           ? colors.categoryTransport
           : colors.categoryOther;
 
+    const isFirst = index === 0;
+    const isLast = index === section.data.length - 1;
+
     return (
-      <TouchableOpacity
-        style={styles.row}
-        activeOpacity={0.6}
-        onLongPress={() => handleDelete(item)}
+      <View
+        style={[
+          styles.rowContainer,
+          isFirst && styles.rowFirst,
+          isLast && styles.rowLast,
+        ]}
       >
-        <View style={[styles.dot, { backgroundColor: catColor }]} />
-        <View style={styles.middle}>
-          <Text style={styles.label} numberOfLines={1}>
-            {item.note || item.category || 'Expense'}
-          </Text>
-          <Text style={styles.meta}>
-            {formatTime(item.createdAt)}
-            {item.category ? `  ·  ${item.category}` : ''}
-          </Text>
-        </View>
-        <Text style={styles.amount}>
-          {formatAmount(item.amount, item.currency)}
-        </Text>
+        {index > 0 && <View style={styles.rowSeparator} />}
         <TouchableOpacity
-          style={styles.deleteBtn}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          onPress={() => handleDelete(item)}
+          style={styles.row}
+          activeOpacity={0.6}
+          onLongPress={() => handleDelete(item)}
         >
-          <Ionicons name="trash-outline" size={18} color={colors.danger} />
+          <View style={[styles.dot, { backgroundColor: catColor }]} />
+          <View style={styles.middle}>
+            <Text style={styles.label} numberOfLines={1}>
+              {item.note || item.category || 'Expense'}
+            </Text>
+            <Text style={styles.meta}>
+              {formatTime(item.createdAt)}
+              {item.category ? `  ·  ${item.category}` : ''}
+            </Text>
+          </View>
+          <Text style={styles.amount}>
+            {formatAmount(item.amount, item.currency)}
+          </Text>
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            onPress={() => handleDelete(item)}
+          >
+            <Ionicons name="trash-outline" size={18} color={colors.danger} />
+          </TouchableOpacity>
         </TouchableOpacity>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -99,10 +119,6 @@ export default function HistoryScreen() {
         {formatAmount(section.total, currency)}
       </Text>
     </View>
-  );
-
-  const renderSeparator = () => (
-    <View style={styles.separator} />
   );
 
   return (
@@ -135,8 +151,12 @@ export default function HistoryScreen() {
       {sections.length === 0 ? (
         <EmptyState
           icon="document-text-outline"
-          title="No expenses found"
-          subtitle={filter !== 'All' ? `No ${filter} expenses yet` : 'Start logging to see history'}
+          title="No expenses found."
+          subtitle={
+            filter !== 'All'
+              ? `No ${filter} expenses yet.`
+              : undefined
+          }
         />
       ) : (
         <SectionList
@@ -144,7 +164,6 @@ export default function HistoryScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           renderSectionHeader={renderSectionHeader}
-          ItemSeparatorComponent={renderSeparator}
           contentContainerStyle={styles.listContent}
           stickySectionHeadersEnabled={false}
         />
@@ -203,13 +222,30 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textSecondary,
   },
+  // -- Grouped card rows --
+  rowContainer: {
+    marginHorizontal: 16,
+    backgroundColor: colors.card,
+    overflow: 'hidden',
+  },
+  rowFirst: {
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  rowLast: {
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  rowSeparator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.separator,
+    marginLeft: 38,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    marginHorizontal: 16,
-    backgroundColor: colors.card,
   },
   dot: {
     width: 10,
@@ -238,12 +274,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   deleteBtn: {
-    padding: 4,
-  },
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: colors.separator,
-    marginLeft: 54,
-    marginHorizontal: 16,
+    padding: 6,
   },
 });

@@ -10,9 +10,9 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
-import { formatAmount } from '../utils/helpers';
-import ExpenseRow from '../components/ExpenseRow';
+import { formatAmount, formatTime } from '../utils/helpers';
 import EmptyState from '../components/EmptyState';
+import type { Expense } from '../types';
 
 export default function TodayScreen() {
   const { todayExpenses, currency } = useApp();
@@ -20,12 +20,44 @@ export default function TodayScreen() {
 
   const total = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  const renderItem = ({ item, index }: { item: typeof todayExpenses[0]; index: number }) => (
-    <View>
-      {index > 0 && <View style={styles.separator} />}
-      <ExpenseRow expense={item} />
-    </View>
-  );
+  const renderItem = ({ item, index }: { item: Expense; index: number }) => {
+    const catColor =
+      item.category === 'Food'
+        ? colors.categoryFood
+        : item.category === 'Transport'
+          ? colors.categoryTransport
+          : colors.categoryOther;
+
+    const isFirst = index === 0;
+    const isLast = index === todayExpenses.length - 1;
+
+    return (
+      <View
+        style={[
+          styles.row,
+          isFirst && styles.rowFirst,
+          isLast && styles.rowLast,
+        ]}
+      >
+        {index > 0 && <View style={styles.separator} />}
+        <View style={styles.rowInner}>
+          <View style={[styles.dot, { backgroundColor: catColor }]} />
+          <View style={styles.middle}>
+            <Text style={styles.label} numberOfLines={1}>
+              {item.note || item.category || 'Expense'}
+            </Text>
+            <Text style={styles.meta}>
+              {formatTime(item.createdAt)}
+              {item.category ? `  ·  ${item.category}` : ''}
+            </Text>
+          </View>
+          <Text style={styles.amount}>
+            {formatAmount(item.amount, item.currency)}
+          </Text>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -44,8 +76,7 @@ export default function TodayScreen() {
       {todayExpenses.length === 0 ? (
         <EmptyState
           icon="wallet-outline"
-          title="No expenses yet"
-          subtitle="Tap + to log your first spend"
+          title="No expenses yet. Tap + to add."
         />
       ) : (
         <FlatList
@@ -110,15 +141,56 @@ const styles = StyleSheet.create({
   },
   listContent: {
     marginHorizontal: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
     marginTop: 4,
     paddingBottom: 100,
+  },
+  row: {
+    backgroundColor: colors.card,
+    overflow: 'hidden',
+  },
+  rowFirst: {
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  rowLast: {
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  rowInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: colors.separator,
     marginLeft: 38,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 12,
+  },
+  middle: {
+    flex: 1,
+    marginRight: 12,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  meta: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
   },
   fab: {
     position: 'absolute',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
 import { CATEGORIES, CURRENCY_SYMBOLS } from '../types';
@@ -24,15 +25,30 @@ export default function AddScreen() {
   const [note, setNote] = useState('');
   const [category, setCategory] = useState<Category>('Food');
   const [saving, setSaving] = useState(false);
+  const [touched, setTouched] = useState(false);
 
   const currencySymbol = CURRENCY_SYMBOLS[currency] || currency;
 
+  // ---------- Inline validation ----------
+  const parsed = parseFloat(amount);
+  const amountIsValid = !isNaN(parsed) && parsed > 0;
+  const showError = touched && amount.length > 0 && !amountIsValid;
+  const canSave = amountIsValid && !saving;
+
+  const handleAmountChange = (text: string) => {
+    // Only allow digits and a single decimal point
+    const cleaned = text.replace(/[^0-9.]/g, '');
+    // Prevent multiple dots
+    const parts = cleaned.split('.');
+    const sanitized = parts.length > 2
+      ? parts[0] + '.' + parts.slice(1).join('')
+      : cleaned;
+    setAmount(sanitized);
+    if (!touched) setTouched(true);
+  };
+
   const handleSave = async () => {
-    const parsed = parseFloat(amount);
-    if (isNaN(parsed) || parsed <= 0) {
-      Alert.alert('Invalid amount', 'Please enter a valid amount greater than zero.');
-      return;
-    }
+    if (!canSave) return;
 
     setSaving(true);
     try {
@@ -41,6 +57,7 @@ export default function AddScreen() {
       setAmount('');
       setNote('');
       setCategory('Food');
+      setTouched(false);
       // Navigate to Today tab
       (navigation as any).navigate('Today');
     } catch (e) {
@@ -48,6 +65,12 @@ export default function AddScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const CATEGORY_ICONS: Record<Category, string> = {
+    Food: 'fast-food-outline',
+    Transport: 'car-outline',
+    Other: 'ellipsis-horizontal-circle-outline',
   };
 
   return (
@@ -62,7 +85,7 @@ export default function AddScreen() {
       >
         {/* Amount input */}
         <Text style={styles.sectionLabel}>Amount</Text>
-        <View style={styles.amountRow}>
+        <View style={[styles.amountCard, showError && styles.amountCardError]}>
           <Text style={styles.currencySymbol}>{currencySymbol}</Text>
           <TextInput
             style={styles.amountInput}
@@ -70,21 +93,34 @@ export default function AddScreen() {
             placeholderTextColor={colors.textTertiary}
             keyboardType="decimal-pad"
             value={amount}
-            onChangeText={setAmount}
+            onChangeText={handleAmountChange}
             autoFocus
           />
         </View>
+        {showError && (
+          <Text style={styles.errorText}>
+            Enter a valid amount greater than zero.
+          </Text>
+        )}
 
         {/* Note input */}
         <Text style={styles.sectionLabel}>Note (optional)</Text>
-        <TextInput
-          style={styles.noteInput}
-          placeholder="e.g. Coffee, parking meter…"
-          placeholderTextColor={colors.textTertiary}
-          value={note}
-          onChangeText={setNote}
-          returnKeyType="done"
-        />
+        <View style={styles.noteCard}>
+          <Ionicons
+            name="create-outline"
+            size={20}
+            color={colors.textTertiary}
+            style={styles.noteIcon}
+          />
+          <TextInput
+            style={styles.noteInput}
+            placeholder="e.g. Coffee, parking meter…"
+            placeholderTextColor={colors.textTertiary}
+            value={note}
+            onChangeText={setNote}
+            returnKeyType="done"
+          />
+        </View>
 
         {/* Category picker */}
         <Text style={styles.sectionLabel}>Category</Text>
@@ -101,6 +137,12 @@ export default function AddScreen() {
                 onPress={() => setCategory(cat)}
                 activeOpacity={0.7}
               >
+                <Ionicons
+                  name={CATEGORY_ICONS[cat] as any}
+                  size={20}
+                  color={isSelected ? '#FFFFFF' : colors.textSecondary}
+                  style={styles.categoryIcon}
+                />
                 <Text
                   style={[
                     styles.categoryChipText,
@@ -116,11 +158,17 @@ export default function AddScreen() {
 
         {/* Save button */}
         <TouchableOpacity
-          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
           onPress={handleSave}
           activeOpacity={0.8}
-          disabled={saving}
+          disabled={!canSave}
         >
+          <Ionicons
+            name={saving ? 'hourglass-outline' : 'checkmark-circle-outline'}
+            size={22}
+            color="#FFFFFF"
+            style={styles.saveIcon}
+          />
           <Text style={styles.saveButtonText}>
             {saving ? 'Saving…' : 'Save Expense'}
           </Text>
@@ -149,13 +197,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 4,
   },
-  amountRow: {
+  amountCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 4,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  amountCardError: {
+    borderColor: colors.danger,
   },
   currencySymbol: {
     fontSize: 28,
@@ -170,10 +223,24 @@ const styles = StyleSheet.create({
     color: colors.text,
     paddingVertical: 12,
   },
-  noteInput: {
+  errorText: {
+    fontSize: 13,
+    color: colors.danger,
+    marginTop: 6,
+    marginLeft: 4,
+  },
+  noteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
+  },
+  noteIcon: {
+    marginRight: 8,
+  },
+  noteInput: {
+    flex: 1,
     paddingVertical: 14,
     fontSize: 16,
     color: colors.text,
@@ -189,12 +256,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   categoryChipSelected: {
     backgroundColor: colors.primary,
   },
+  categoryIcon: {
+    marginRight: 6,
+  },
   categoryChipText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: colors.textSecondary,
   },
@@ -206,10 +277,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   saveButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.45,
+  },
+  saveIcon: {
+    marginRight: 8,
   },
   saveButtonText: {
     fontSize: 17,

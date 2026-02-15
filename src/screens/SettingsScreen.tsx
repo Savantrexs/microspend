@@ -18,10 +18,12 @@ import { CURRENCIES, CURRENCY_SYMBOLS } from '../types';
 import type { Currency } from '../types';
 import { expensesToCSV } from '../utils/helpers';
 
+type AdState = 'idle' | 'playing' | 'completed';
+
 export default function SettingsScreen() {
   const { currency, setCurrency, allExpenses } = useApp();
   const [adModalVisible, setAdModalVisible] = useState(false);
-  const [exporting, setExporting] = useState(false);
+  const [adState, setAdState] = useState<AdState>('idle');
 
   // ---------- Currency selector ----------
   const handleCurrencyChange = (c: Currency) => {
@@ -34,18 +36,11 @@ export default function SettingsScreen() {
       Alert.alert('Nothing to export', 'Add some expenses first.');
       return;
     }
-    // Show mock ad modal
+    setAdState('idle');
     setAdModalVisible(true);
   };
 
-  const handleWatchAd = async () => {
-    setExporting(true);
-    // Simulate ad playback (2 seconds)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setAdModalVisible(false);
-    setExporting(false);
-
-    // Actually export
+  const doExport = async () => {
     try {
       const csv = expensesToCSV(allExpenses);
       const file = new ExpoFile(Paths.cache, 'microspend_expenses.csv');
@@ -65,11 +60,33 @@ export default function SettingsScreen() {
       } else {
         Alert.alert('Exported', 'CSV file saved to cache.');
       }
-    } catch (e) {
+    } catch {
       Alert.alert('Export failed', 'Something went wrong. Please try again.');
     }
   };
 
+  const handleWatchAd = async () => {
+    // Phase 1: Simulate ad playback (2–3 seconds)
+    setAdState('playing');
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+
+    // Phase 2: Show "Ad completed ✅" for 1 second
+    setAdState('completed');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Phase 3: Close modal & export
+    setAdModalVisible(false);
+    setAdState('idle');
+    await doExport();
+  };
+
+  const handleCancelAd = () => {
+    if (adState === 'playing') return; // can't cancel during playback
+    setAdModalVisible(false);
+    setAdState('idle');
+  };
+
+  // ---------- Render ----------
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Currency section */}
@@ -127,8 +144,8 @@ export default function SettingsScreen() {
         </View>
         <View style={styles.separator} />
         <View style={styles.settingRow}>
-          <Text style={styles.settingLabelSecondary}>
-            A Savantrexs utility
+          <Text style={styles.aboutText}>
+            MicroSpend is a Savantrexs utility.
           </Text>
         </View>
       </View>
@@ -138,30 +155,50 @@ export default function SettingsScreen() {
         visible={adModalVisible}
         animationType="fade"
         transparent
-        onRequestClose={() => !exporting && setAdModalVisible(false)}
+        onRequestClose={handleCancelAd}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Ionicons
-              name="play-circle-outline"
-              size={48}
-              color={colors.primary}
-            />
-            <Text style={styles.modalTitle}>Watch ad to export</Text>
-            <Text style={styles.modalSubtitle}>
-              Watch a short ad to unlock CSV export of all your expenses.
+            {/* Icon changes per state */}
+            {adState === 'completed' ? (
+              <Ionicons name="checkmark-circle" size={48} color={colors.success} />
+            ) : (
+              <Ionicons name="play-circle-outline" size={48} color={colors.primary} />
+            )}
+
+            {/* Title changes per state */}
+            <Text style={styles.modalTitle}>
+              {adState === 'completed'
+                ? 'Ad completed ✅'
+                : 'Watch a short ad to export'}
             </Text>
 
-            {exporting ? (
+            {/* Body */}
+            {adState === 'idle' && (
+              <Text style={styles.modalSubtitle}>
+                Watch a short ad to unlock CSV export of all your expenses.
+              </Text>
+            )}
+
+            {/* State-specific controls */}
+            {adState === 'playing' && (
               <View style={styles.modalLoading}>
                 <ActivityIndicator size="small" color={colors.primary} />
                 <Text style={styles.modalLoadingText}>Playing ad…</Text>
               </View>
-            ) : (
+            )}
+
+            {adState === 'completed' && (
+              <Text style={styles.modalCompletedSubtitle}>
+                Preparing your export…
+              </Text>
+            )}
+
+            {adState === 'idle' && (
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={styles.modalCancel}
-                  onPress={() => setAdModalVisible(false)}
+                  onPress={handleCancelAd}
                 >
                   <Text style={styles.modalCancelText}>Cancel</Text>
                 </TouchableOpacity>
@@ -225,13 +262,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.text,
   },
-  settingLabelSecondary: {
-    fontSize: 15,
-    color: colors.textSecondary,
-  },
   settingValue: {
     fontSize: 15,
     color: colors.textSecondary,
+  },
+  aboutText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    lineHeight: 21,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
@@ -267,6 +305,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 21,
+  },
+  modalCompletedSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 10,
+    textAlign: 'center',
   },
   modalLoading: {
     flexDirection: 'row',
