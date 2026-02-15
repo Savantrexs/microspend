@@ -18,8 +18,6 @@ export default function TodayScreen() {
   const { todayExpenses, currency, refreshToday } = useApp();
   const navigation = useNavigation();
 
-  // Refresh today's data every time the tab gains focus
-  // (handles midnight rollover, backgrounding, etc.)
   useFocusEffect(
     useCallback(() => {
       refreshToday();
@@ -138,6 +136,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
     letterSpacing: -1,
+    fontVariant: ['tabular-nums'],
   },
   totalCount: {
     fontSize: 13,
@@ -167,7 +166,8 @@ const styles = StyleSheet.create({
   rowInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    minHeight: 52,
+    paddingVertical: 16,
     paddingHorizontal: 16,
   },
   separator: {
@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    fontVariant: ['tabular-nums'],
   },
   fab: {
     position: 'absolute',

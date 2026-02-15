@@ -17,6 +17,18 @@ import { useApp } from '../context/AppContext';
 import { CATEGORIES, CURRENCY_SYMBOLS } from '../types';
 import type { Category } from '../types';
 
+const CATEGORY_ICONS: Record<Category, string> = {
+  Food: 'fast-food-outline',
+  Transport: 'car-outline',
+  Other: 'ellipsis-horizontal-circle-outline',
+};
+
+const CATEGORY_COLORS: Record<Category, string> = {
+  Food: colors.categoryFood,
+  Transport: colors.categoryTransport,
+  Other: colors.categoryOther,
+};
+
 export default function AddScreen() {
   const { addExpense, currency } = useApp();
   const navigation = useNavigation();
@@ -32,7 +44,6 @@ export default function AddScreen() {
   // ---------- Inline validation ----------
   const parsed = parseFloat(amount);
   const amountIsValid = !isNaN(parsed) && parsed > 0;
-  // Show error after the user has interacted AND the amount is empty or invalid
   const showError = touched && !amountIsValid;
   const errorMessage =
     amount.length === 0
@@ -41,9 +52,7 @@ export default function AddScreen() {
   const canSave = amountIsValid && !saving;
 
   const handleAmountChange = (text: string) => {
-    // Only allow digits and a single decimal point
     const cleaned = text.replace(/[^0-9.]/g, '');
-    // Prevent multiple dots
     const parts = cleaned.split('.');
     const sanitized = parts.length > 2
       ? parts[0] + '.' + parts.slice(1).join('')
@@ -58,24 +67,16 @@ export default function AddScreen() {
     setSaving(true);
     try {
       await addExpense(parsed, note.trim() || null, category);
-      // Reset form
       setAmount('');
       setNote('');
       setCategory('Food');
       setTouched(false);
-      // Navigate to Today tab
       (navigation as any).navigate('Today');
     } catch (e) {
       Alert.alert('Error', 'Failed to save expense. Please try again.');
     } finally {
       setSaving(false);
     }
-  };
-
-  const CATEGORY_ICONS: Record<Category, string> = {
-    Food: 'fast-food-outline',
-    Transport: 'car-outline',
-    Other: 'ellipsis-horizontal-circle-outline',
   };
 
   return (
@@ -130,12 +131,13 @@ export default function AddScreen() {
         <View style={styles.categoryRow}>
           {CATEGORIES.map((cat) => {
             const isSelected = cat === category;
+            const accentColor = CATEGORY_COLORS[cat];
             return (
               <TouchableOpacity
                 key={cat}
                 style={[
                   styles.categoryChip,
-                  isSelected && styles.categoryChipSelected,
+                  isSelected && { backgroundColor: accentColor },
                 ]}
                 onPress={() => setCategory(cat)}
                 activeOpacity={0.7}
@@ -225,6 +227,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     paddingVertical: 12,
+    fontVariant: ['tabular-nums'],
   },
   errorText: {
     fontSize: 13,
@@ -238,6 +241,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 12,
     paddingHorizontal: 14,
+    minHeight: 48,
   },
   noteIcon: {
     marginRight: 8,
@@ -254,15 +258,15 @@ const styles = StyleSheet.create({
   },
   categoryChip: {
     flex: 1,
+    minHeight: 48,
     paddingVertical: 14,
     borderRadius: 12,
     backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-  },
-  categoryChipSelected: {
-    backgroundColor: colors.primary,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   categoryIcon: {
     marginRight: 6,
@@ -280,6 +284,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
+    minHeight: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

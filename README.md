@@ -114,6 +114,15 @@ MicroSpend includes a CSV export feature gated behind a mock rewarded-ad flow (n
 | category  | TEXT | Food / Transport / Other       |
 | createdAt | TEXT | ISO 8601 datetime string       |
 
+## App Icon
+
+The `assets/` folder contains Expo's default placeholder icons. To use a custom app icon:
+
+1. Replace `assets/icon.png` with a **1024x1024** PNG (no transparency for iOS).
+2. Replace `assets/adaptive-icon.png` with a **1024x1024** PNG for Android adaptive icon.
+3. Replace `assets/splash-icon.png` with your splash/loading image.
+4. Run `npx expo prebuild` if using a development build, or the icons will be picked up automatically by Expo Go.
+
 ## Scripts
 
 | Command           | Description                     |

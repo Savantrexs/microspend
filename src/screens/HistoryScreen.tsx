@@ -23,7 +23,6 @@ export default function HistoryScreen() {
   const { allExpenses, currency, deleteExpense, refreshAll } = useApp();
   const [filter, setFilter] = useState<FilterOption>('All');
 
-  // Refresh full expense list every time the tab gains focus
   useFocusEffect(
     useCallback(() => {
       refreshAll();
@@ -106,7 +105,7 @@ export default function HistoryScreen() {
           </Text>
           <TouchableOpacity
             style={styles.deleteBtn}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             onPress={() => handleDelete(item)}
           >
             <Ionicons name="trash-outline" size={18} color={colors.danger} />
@@ -193,10 +192,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterChip: {
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 20,
     backgroundColor: colors.card,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   filterChipActive: {
     backgroundColor: colors.primary,
@@ -229,8 +231,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.textSecondary,
+    fontVariant: ['tabular-nums'],
   },
-  // -- Grouped card rows --
   rowContainer: {
     marginHorizontal: 16,
     backgroundColor: colors.card,
@@ -252,7 +254,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    minHeight: 52,
+    paddingVertical: 16,
     paddingHorizontal: 16,
   },
   dot: {
@@ -280,8 +283,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
     marginRight: 8,
+    fontVariant: ['tabular-nums'],
   },
   deleteBtn: {
-    padding: 6,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

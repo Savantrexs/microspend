@@ -6,10 +6,18 @@ export type Currency = 'CAD' | 'USD' | 'NPR' | 'GBP';
 
 /** Currency display symbols */
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
-  CAD: 'C$',
+  CAD: '$',
   USD: '$',
   NPR: 'Rs',
   GBP: '£',
+};
+
+/** Currency labels for Settings (disambiguates CAD/USD) */
+export const CURRENCY_LABELS: Record<Currency, string> = {
+  CAD: 'CAD — Canadian Dollar',
+  USD: 'USD — US Dollar',
+  NPR: 'NPR — Nepalese Rupee',
+  GBP: 'GBP — British Pound',
 };
 
 /** All available categories */
