@@ -1,23 +1,33 @@
-# Expo React Native App
+# MicroSpend
 
-A React Native application built with [Expo](https://expo.dev/) and TypeScript, featuring bottom tab navigation and local SQLite storage.
+A super-fast micro expense logger for small daily spending — coffee, snacks, parking. Offline-first, no login required.
+
+> A Savantrexs utility
 
 ## Features
 
+- **Today** — see today's total spending and a list of all expenses logged today
+- **Add** — quickly log an expense with amount, optional note, and category (Food / Transport / Other)
+- **History** — browse all expenses grouped by date, filter by category, and delete entries
+- **Settings** — change default currency (CAD / USD / NPR / GBP), export all data as CSV, about info
+- **Offline-first** — all data stored locally with SQLite, no internet required
+- **Monetization-ready** — mock rewarded-ad gate on CSV export (no real AdMob yet)
+
+## Tech Stack
+
 - **Expo SDK 54** with TypeScript
-- **React Navigation** bottom tab navigator with 4 tabs: Today, History, Add, Settings
-- **expo-sqlite** for local on-device storage
-- Clean folder structure ready for development
+- **React Navigation v7** — bottom tab navigator
+- **expo-sqlite** — local on-device SQLite database
+- **expo-file-system** + **expo-sharing** — CSV export
+- **expo-crypto** — UUID generation
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- [Expo Go](https://expo.dev/go) app installed on your iOS or Android device (for testing on a physical device)
-- Alternatively, an iOS Simulator (macOS only) or Android Emulator
+- [Node.js](https://nodejs.org/) v18 or later
+- [Expo Go](https://expo.dev/go) app on your phone (for testing on a physical device)
+- Alternatively, Xcode (macOS only) for iOS Simulator or Android Studio for Android Emulator
 
 ## Setup
-
-Install all dependencies:
 
 ```bash
 npm install
@@ -33,49 +43,66 @@ npx expo start
 
 ### Run on iOS
 
-1. Make sure you have the **Expo Go** app installed on your iPhone/iPad.
-2. Start the dev server with `npx expo start`.
-3. Scan the QR code shown in the terminal using the **Camera** app (iOS) — it will open in Expo Go.
-4. Alternatively, if you're on macOS with Xcode installed, press **i** in the terminal to open the iOS Simulator.
+1. Install the **Expo Go** app on your iPhone/iPad.
+2. Run `npx expo start`.
+3. Scan the QR code with the **Camera** app — it opens in Expo Go.
+4. Or press **i** in the terminal to launch the iOS Simulator (requires Xcode on macOS).
 
 ### Run on Android
 
-1. Make sure you have the **Expo Go** app installed on your Android device.
-2. Start the dev server with `npx expo start`.
-3. Scan the QR code shown in the terminal using the **Expo Go** app.
-4. Alternatively, if you have Android Studio with an emulator configured, press **a** in the terminal to open the Android Emulator.
+1. Install the **Expo Go** app on your Android device.
+2. Run `npx expo start`.
+3. Scan the QR code with the **Expo Go** app.
+4. Or press **a** in the terminal to launch the Android Emulator (requires Android Studio).
 
 ## Project Structure
 
 ```
-├── App.tsx                  # Root component with NavigationContainer
-├── index.ts                 # Entry point (registers App)
-├── app.json                 # Expo configuration
+├── App.tsx                       # Root: AppProvider + NavigationContainer
+├── index.ts                      # Entry point
+├── app.json                      # Expo config
 ├── src/
-│   ├── components/          # Reusable UI components
+│   ├── context/
+│   │   └── AppContext.tsx         # Shared state: expenses, currency, CRUD
 │   ├── db/
-│   │   └── database.ts      # expo-sqlite database helpers
+│   │   └── database.ts           # SQLite schema, CRUD, settings
+│   ├── types/
+│   │   └── index.ts              # Expense, Category, Currency types
 │   ├── navigation/
-│   │   └── BottomTabs.tsx    # Bottom tab navigator configuration
+│   │   └── BottomTabs.tsx         # Bottom tab navigator (4 tabs)
 │   ├── screens/
-│   │   ├── TodayScreen.tsx   # Today tab
-│   │   ├── HistoryScreen.tsx # History tab
-│   │   ├── AddScreen.tsx     # Add tab
-│   │   └── SettingsScreen.tsx# Settings tab
+│   │   ├── TodayScreen.tsx        # Today's total + expense list + FAB
+│   │   ├── AddScreen.tsx          # Amount input, note, category picker
+│   │   ├── HistoryScreen.tsx      # Grouped by date, filter, delete
+│   │   └── SettingsScreen.tsx     # Currency, CSV export, about
+│   ├── components/
+│   │   ├── ExpenseRow.tsx         # Single expense list item
+│   │   └── EmptyState.tsx         # Empty state placeholder
 │   ├── theme/
-│   │   └── colors.ts        # Color palette / theming constants
+│   │   └── colors.ts             # iOS-like color palette
 │   └── utils/
-│       └── helpers.ts        # Utility functions
-├── assets/                  # App icons and splash images
-├── package.json
-└── tsconfig.json
+│       └── helpers.ts            # Date formatting, CSV generation, grouping
+└── assets/                       # App icons and splash images
 ```
+
+## Data Model
+
+**expenses** table (SQLite):
+
+| Column    | Type | Notes                          |
+|-----------|------|--------------------------------|
+| id        | TEXT | Primary key (UUID v4)          |
+| amount    | REAL | Required                       |
+| currency  | TEXT | Default 'CAD'                  |
+| note      | TEXT | Optional                       |
+| category  | TEXT | Food / Transport / Other       |
+| createdAt | TEXT | ISO 8601 datetime string       |
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start the Expo dev server |
-| `npm run android` | Start and open on Android |
-| `npm run ios` | Start and open on iOS |
-| `npm run web` | Start and open in web browser |
+| Command           | Description                     |
+|-------------------|---------------------------------|
+| `npm start`       | Start the Expo dev server       |
+| `npm run android` | Start and open on Android       |
+| `npm run ios`     | Start and open on iOS           |
+| `npm run web`     | Start and open in web browser   |

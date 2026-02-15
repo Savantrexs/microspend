@@ -1,13 +1,15 @@
 import React from 'react';
+import { StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../theme/colors';
 
 import TodayScreen from '../screens/TodayScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import AddScreen from '../screens/AddScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
-type TabParamList = {
+export type TabParamList = {
   Today: undefined;
   History: undefined;
   Add: undefined;
@@ -32,16 +34,58 @@ export default function BottomTabs() {
           const iconName = focused ? icons.focused : icons.default;
           return <Ionicons name={iconName as any} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#4f46e5',
-        tabBarInactiveTintColor: '#9ca3af',
-        headerShown: true,
+        tabBarActiveTintColor: colors.tabActive,
+        tabBarInactiveTintColor: colors.tabInactive,
+        tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabBarLabel,
+        headerStyle: styles.header,
+        headerTitleStyle: styles.headerTitle,
+        headerShadowVisible: false,
         headerTitleAlign: 'center',
       })}
     >
-      <Tab.Screen name="Today" component={TodayScreen} />
-      <Tab.Screen name="History" component={HistoryScreen} />
-      <Tab.Screen name="Add" component={AddScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen
+        name="Today"
+        component={TodayScreen}
+        options={{ title: 'Today' }}
+      />
+      <Tab.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{ title: 'History' }}
+      />
+      <Tab.Screen
+        name="Add"
+        component={AddScreen}
+        options={{ title: 'Add Expense' }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: 'Settings' }}
+      />
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: colors.card,
+    borderTopColor: colors.border,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: 4,
+    height: Platform.OS === 'ios' ? 88 : 64,
+  },
+  tabBarLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  header: {
+    backgroundColor: colors.background,
+  },
+  headerTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.text,
+  },
+});
