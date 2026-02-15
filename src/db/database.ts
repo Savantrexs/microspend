@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import * as Crypto from 'expo-crypto';
 import type { Expense, Currency } from '../types';
+import { localISOString } from '../utils/helpers';
 
 const DB_NAME = 'microspend.db';
 
@@ -67,7 +68,7 @@ export async function addExpense(
 ): Promise<Expense> {
   const db = await getDatabase();
   const id = generateId();
-  const createdAt = new Date().toISOString();
+  const createdAt = localISOString();
 
   await db.runAsync(
     'INSERT INTO expenses (id, amount, currency, note, category, createdAt) VALUES (?, ?, ?, ?, ?, ?)',

@@ -76,7 +76,6 @@ npx expo start
 │   │   ├── HistoryScreen.tsx      # Grouped by date, filter, delete
 │   │   └── SettingsScreen.tsx     # Currency, CSV export, about
 │   ├── components/
-│   │   ├── ExpenseRow.tsx         # Single expense list item
 │   │   └── EmptyState.tsx         # Empty state placeholder
 │   ├── theme/
 │   │   └── colors.ts             # iOS-like color palette

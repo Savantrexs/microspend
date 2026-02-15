@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -19,8 +20,15 @@ type FilterOption = 'All' | Category;
 const FILTERS: FilterOption[] = ['All', ...CATEGORIES];
 
 export default function HistoryScreen() {
-  const { allExpenses, currency, deleteExpense } = useApp();
+  const { allExpenses, currency, deleteExpense, refreshAll } = useApp();
   const [filter, setFilter] = useState<FilterOption>('All');
+
+  // Refresh full expense list every time the tab gains focus
+  useFocusEffect(
+    useCallback(() => {
+      refreshAll();
+    }, [refreshAll]),
+  );
 
   const filtered = useMemo(() => {
     if (filter === 'All') return allExpenses;

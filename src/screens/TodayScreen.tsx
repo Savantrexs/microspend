@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,7 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useApp } from '../context/AppContext';
@@ -15,8 +15,16 @@ import EmptyState from '../components/EmptyState';
 import type { Expense } from '../types';
 
 export default function TodayScreen() {
-  const { todayExpenses, currency } = useApp();
+  const { todayExpenses, currency, refreshToday } = useApp();
   const navigation = useNavigation();
+
+  // Refresh today's data every time the tab gains focus
+  // (handles midnight rollover, backgrounding, etc.)
+  useFocusEffect(
+    useCallback(() => {
+      refreshToday();
+    }, [refreshToday]),
+  );
 
   const total = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
 

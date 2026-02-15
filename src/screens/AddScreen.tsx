@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -32,7 +32,12 @@ export default function AddScreen() {
   // ---------- Inline validation ----------
   const parsed = parseFloat(amount);
   const amountIsValid = !isNaN(parsed) && parsed > 0;
-  const showError = touched && amount.length > 0 && !amountIsValid;
+  // Show error after the user has interacted AND the amount is empty or invalid
+  const showError = touched && !amountIsValid;
+  const errorMessage =
+    amount.length === 0
+      ? 'Amount is required.'
+      : 'Enter a valid amount greater than zero.';
   const canSave = amountIsValid && !saving;
 
   const handleAmountChange = (text: string) => {
@@ -98,9 +103,7 @@ export default function AddScreen() {
           />
         </View>
         {showError && (
-          <Text style={styles.errorText}>
-            Enter a valid amount greater than zero.
-          </Text>
+          <Text style={styles.errorText}>{errorMessage}</Text>
         )}
 
         {/* Note input */}
