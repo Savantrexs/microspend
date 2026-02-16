@@ -44,7 +44,6 @@ export default function BottomTabs() {
         headerTitleStyle: styles.headerTitle,
         headerShadowVisible: false,
         headerTitleAlign: 'center' as const,
-        animation: 'none' as const,
       })}
     >
       <Tab.Screen
