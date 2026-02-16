@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
     letterSpacing: -1,
-    fontVariant: ['tabular-nums'],
   },
   totalCount: {
     fontSize: 13,
@@ -199,7 +198,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
-    fontVariant: ['tabular-nums'],
   },
   fab: {
     position: 'absolute',

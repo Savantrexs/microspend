@@ -21,7 +21,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F2F2F7"
       },
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": false,
       "package": "com.savantrexs.microspend"
     },
     "web": {

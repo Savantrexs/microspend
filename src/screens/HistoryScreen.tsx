@@ -173,6 +173,7 @@ export default function HistoryScreen() {
           renderSectionHeader={renderSectionHeader}
           contentContainerStyle={styles.listContent}
           stickySectionHeadersEnabled={false}
+          removeClippedSubviews={false}
         />
       )}
     </View>
@@ -231,7 +232,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.textSecondary,
-    fontVariant: ['tabular-nums'],
   },
   rowContainer: {
     marginHorizontal: 16,
@@ -283,7 +283,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
     marginRight: 8,
-    fontVariant: ['tabular-nums'],
   },
   deleteBtn: {
     width: 44,

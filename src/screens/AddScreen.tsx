@@ -100,7 +100,7 @@ export default function AddScreen() {
             keyboardType="decimal-pad"
             value={amount}
             onChangeText={handleAmountChange}
-            autoFocus
+            autoFocus={true}
           />
         </View>
         {showError && (
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 4,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: colors.card,
   },
   amountCardError: {
     borderColor: colors.danger,
@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     paddingVertical: 12,
-    fontVariant: ['tabular-nums'],
   },
   errorText: {
     fontSize: 13,
@@ -265,8 +264,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    borderWidth: 2,
-    borderColor: 'transparent',
   },
   categoryIcon: {
     marginRight: 6,

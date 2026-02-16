@@ -38,10 +38,13 @@ export default function BottomTabs() {
         tabBarInactiveTintColor: colors.tabInactive,
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
+        tabBarHideOnKeyboard: true,
+        headerShown: true,
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
         headerShadowVisible: false,
-        headerTitleAlign: 'center',
+        headerTitleAlign: 'center' as const,
+        animation: 'none' as const,
       })}
     >
       <Tab.Screen

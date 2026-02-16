@@ -41,6 +41,12 @@ Start the Expo development server:
 npx expo start
 ```
 
+If you see a runtime crash or stale behaviour after pulling changes, clear the Metro cache:
+
+```bash
+npx expo start -c
+```
+
 ### Run on iOS
 
 1. Install the **Expo Go** app on your iPhone/iPad.

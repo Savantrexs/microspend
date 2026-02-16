@@ -198,7 +198,7 @@ export default function SettingsScreen() {
         <Modal
           visible={adModalVisible}
           animationType="fade"
-          transparent
+          transparent={true}
           onRequestClose={handleCancelAd}
         >
           <View style={styles.modalOverlay}>
